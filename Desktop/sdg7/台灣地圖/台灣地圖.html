@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>台灣自然能源地圖</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+body{
+    margin:0;
+}
+
+#map{
+    width:100vw;
+    height:100vh;
+}
+
+.info{
+    padding:10px;
+    background:white;
+    border-radius:8px;
+    box-shadow:0 0 10px rgba(0,0,0,.2);
+}
+
+.legend{
+    line-height:24px;
+    font-size:14px;
+}
+
+.legend h4{
+    margin:0 0 8px 0;
+}
+.leaflet-interactive:focus {
+    outline: none;
+}
+</style>
+
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+// ====== 鄉鎮能源資料 ======
+const energyData = {
+    // ===== 原有資料 =====
+    "彰化縣鹿港鎮": {
+        type: ["離岸風電", "地面型太陽能"],
+        power: "120 MW"
+    },
+    
+    "彰化縣員林鎮": {
+        type: ["地面型太陽能"],
+        power: "35 MW"
+    },
+    "台中市大甲區": {
+        type: ["風力發電", "地面型太陽能"],
+        power: "48 MW"
+    },
+    
+
+    // ===== 地面型太陽能 =====
+    "台中市龍井區": {
+        type: ["地面型太陽能"],
+        power: "6.486 kW"
+    },
+    "南投縣水里鄉": {
+        type: ["地面型太陽能"],
+        power: "1 MW"
+    },
+    "嘉義縣義竹鄉": {
+        type: ["地面型太陽能"],
+        power: "70.2 MW"
+    },
+    "台南市七股區": {
+        type: ["地面型太陽能", "水上型太陽能"],
+        power: "91.8 MW"  // 原90MW + 水上1.8MW
+    },
+    "高雄市將軍區": {
+        type: ["地面型太陽能"],
+        power: "150 MW"
+    },
+    "雲林縣台西鄉": {
+        type: ["地面型太陽能"],
+        power: "272 MW"
+    },
+    "高雄市永安區": {
+        type: ["地面型太陽能"],
+        power: "4,636.8 kW"
+    },
+
+    // ===== 水上型太陽能 =====
+    "台中市東勢區": {
+        type: ["水上型太陽能"],
+        power: "0.3 MW"
+    },
+    "高雄市燕巢區": {
+        type: ["水上型太陽能"],
+        power: "10 MW"
+    },
+    "嘉義縣民雄鄉": {
+        type: ["水上型太陽能"],
+        power: "1.972 MW"
+    },
+    "台南市官田區": {
+        type: ["水上型太陽能"],
+        power: "13.7 MW"
+    },
+    "高雄市小港區": {
+        type: ["水上型太陽能"],
+        power: "2 MW"
+    },
+    "金門縣金湖鎮": {
+        type: ["水上型太陽能", "風力發電"],
+        power: "2.142 MW"
+    },
+
+    // ===== 陸域風力 =====
+    "新北市石門區": {
+        type: ["風力發電"],
+        power: "3.96 MW"
+    },
+    "新北市林口區": {
+        type: ["風力發電"],
+        power: "6 MW"
+    },
+    "桃園市觀音區": {
+        type: ["風力發電"],
+        power: "93.4 MW"  // 觀園30+大潭15.1+觀威43.7+桃威4.6
+    },
+    "桃園市蘆竹區": {
+        type: ["風力發電"],
+        power: "7.2 MW"
+    },
+    "新竹市香山區": {
+        type: ["風力發電"],
+        power: "12 MW"
+    },
+    "台中市清水區": {
+        type: ["風力發電"],
+        power: "36 MW"
+    },
+    "彰化縣線西鄉": {
+        type: ["風力發電"],
+        power: "69.2 MW"  // 彰工62+台泥7.2
+    },
+    "彰化縣芳苑鄉": {
+        type: ["風力發電", "離岸風電"],
+        power: "460.7 MW"  // 永興9.2+王功23+台泥彰旺14.4+星寶10.8+台電離岸403.7
+    },
+    "雲林縣麥寮鄉": {
+        type: ["風力發電"],
+        power: "46 MW"
+    },
+    "雲林縣四湖鄉": {
+        type: ["風力發電"],
+        power: "28 MW"
+    },
+    "屏東縣恆春鎮": {
+        type: ["風力發電"],
+        power: "4.5 MW"
+    },
+    "澎湖縣白沙鄉": {
+        type: ["風力發電"],
+        power: "4.8 MW"
+    },
+    "澎湖縣湖西鄉": {
+        type: ["風力發電"],
+        power: "14.4 MW"  // 湖西5.4+龍門9
+    },
+    "金門縣金沙鎮": {
+        type: ["風力發電"],
+        power: "4 MW"
+    },
+    "苗栗縣後龍鎮": {
+        type: ["風力發電"],
+        power: "11.5 MW"
+    },
+
+    // ===== 離岸風電 =====
+    "苗栗縣竹南鎮": {
+        type: ["離岸風電"],
+        power: "504 MW"  // 海洋128+海能376
+    }
+};
+function getColor(key) {
+    const info = energyData[key];
+    let color = "#d3d3d3";
+
+    if (info) {
+        if (info.type.includes("離岸風電")) {
+            color = "#0066ff";
+        } else if (info.type.includes("風力發電")) {
+            color = "#00cc66";
+        } else if (info.type.includes("水上型太陽能")) {
+            color = "#ff9900";
+        } else if (info.type.includes("地面型太陽能")) {
+            color = "#ffcc00";
+        }
+    }
+
+    return color;
+}
+const hydroPlants = [
+  { name:"碧海發電廠", lat:24.33583, lng:121.67667, type:"慣常式", capacity:"61.2 MW", location:"花蓮縣秀林鄉" },
+  { name:"石門發電廠", lat:24.81056, lng:121.24417, type:"慣常式", capacity:"130 MW", location:"桃園市龍潭區" },
+  { name:"明潭抽蓄水力發電廠", lat:23.83639, lng:120.86778, type:"抽蓄式", capacity:"1,602 MW", location:"南投縣水里鄉" },
+  { name:"大觀抽蓄水力", lat:23.85444, lng:120.87028, type:"抽蓄式", capacity:"1,008 MW", location:"南投縣水里鄉" },
+  { name:"德基發電廠", lat:24.25528, lng:121.16750, type:"慣常式", capacity:"234 MW", location:"台中市和平區" },
+  { name:"青山發電廠", lat:24.25319, lng:121.16028, type:"慣常式", capacity:"360 MW", location:"台中市和平區" },
+  { name:"谷關發電廠", lat:24.2335861, lng:121.0761361, type:"慣常式", capacity:"180 MW", location:"台中市和平區" },
+  { name:"天輪發電廠", lat:24.2106778, lng:121.015806, type:"慣常式", capacity:"195 MW", location:"台中市和平區" },
+  { name:"馬鞍發電廠", lat:24.18417, lng:120.91389, type:"慣常式", capacity:"133 MW", location:"台中市和平區" },
+  { name:"蘭陽發電廠", lat:24.654583, lng:121.61639, type:"慣常式", capacity:"26 MW", location:"宜蘭縣三星鄉" },
+  { name:"曾文發電廠", lat:23.24806, lng:120.53639, type:"慣常式", capacity:"50 MW", location:"嘉義縣大埔鄉" },
+  { name:"桂山發電廠", lat:24.90917, lng:121.58, type:"慣常式", capacity:"111 MW", location:"新北市烏來區" },
+  { name:"萬大發電廠", lat:23.97611, lng:121.13556, type:"慣常式", capacity:"36 MW", location:"南投縣仁愛鄉" },
+  { name:"東部發電廠立霧機組", lat:24.15500, lng:121.62611, type:"調整池式", capacity:"32 MW", location:"花蓮縣秀林鄉" },
+  { name:"東部發電廠水簾機組", lat:24.00250, lng:121.43000, type:"川流式", capacity:"9.5 MW", location:"花蓮縣秀林鄉" },
+  { name:"東部發電廠溪口機組", lat:23.81556, lng:121.46944, type:"川流式", capacity:"2.7 MW", location:"花蓮縣壽豐鄉" },
+  { name:"東部發電廠清流機組", lat:23.96722, lng:121.48194, type:"川流式", capacity:"4.2 MW", location:"花蓮縣秀林鄉" },
+  { name:"東部發電廠清水機組", lat:23.96639, lng:121.45889, type:"川流式", capacity:"7 MW", location:"花蓮縣秀林鄉" },
+  { name:"東部發電廠初英機組", lat:23.94944, lng:121.52056, type:"川流式", capacity:"2 MW", location:"花蓮縣吉安鄉" },
+  { name:"東部發電廠榕樹機組", lat:23.95778, lng:121.50750, type:"川流式", capacity:"2.7 MW", location:"花蓮縣秀林鄉" },
+  { name:"東部發電廠銅門機組", lat:23.96861, lng:121.48778, type:"川流式", capacity:"21 MW", location:"花蓮縣秀林鄉" },
+  { name:"東部發電廠龍澗機組", lat:24.00361, lng:121.42639, type:"調整池式", capacity:"97.2 MW", location:"花蓮縣秀林鄉" },
+  { name:"東部發電廠龍溪機組", lat:24.02250, lng:121.41000, type:"川流式", capacity:"4.7 MW", location:"花蓮縣秀林鄉" },
+  { name:"安農萬富微水力發電廠", lat:24.67056, lng:121.67000, type:"小水力", capacity:"0.13 MW", location:"宜蘭縣三星鄉" },
+  { name:"蘭陽發電廠圓山機組", lat:24.64306, lng:121.59639, type:"川流式", capacity:"18 MW", location:"宜蘭縣三星鄉" },
+  { name:"蘭陽發電廠天埤機組", lat:24.65528, lng:121.61722, type:"川流式", capacity:"8.375 MW", location:"宜蘭縣三星鄉" },
+  { name:"高屏發電廠六龜機組", lat:22.99583, lng:120.64194, type:"川流式", capacity:"4.5 MW", location:"高雄市六龜區" },
+  { name:"高屏發電廠竹門機組", lat:22.86806, lng:120.58944, type:"川流式", capacity:"2.67 MW", location:"高雄市美濃區" },
+  { name:"八田水力發電廠", lat:23.20556, lng:120.36583, type:"水庫式", capacity:"2.2 MW", location:"台南市官田區" },
+  { name:"烏山頭水力發電廠", lat:23.20861, lng:120.36528, type:"水庫式", capacity:"8.75 MW", location:"台南市官田區" },
+  { name:"西口水力發電廠", lat:23.23056, lng:120.44722, type:"川流式", capacity:"11.52 MW", location:"台南市東山區" },
+  { name:"牡丹小水力發電廠", lat:22.13250, lng:120.78278, type:"水庫式", capacity:"0.49 MW", location:"屏東縣牡丹鄉" },
+  { name:"東興發電廠", lat:22.76556, lng:121.02806, type:"川流式", capacity:"0.9 MW", location:"台東縣卑南鄉" },
+  { name:"卑南上圳小型發電廠", lat:22.82222, lng:121.08444, type:"川流式", capacity:"2.3 MW", location:"台東縣卑南鄉" },
+  { name:"明潭發電廠濁水機組", lat:23.77278, lng:120.59944, type:"川流式", capacity:"3.67 MW", location:"雲林縣林內鄉" },
+  { name:"明潭發電廠鉅工分廠", lat:23.81917, lng:120.85750, type:"調整池式", capacity:"43.5 MW", location:"南投縣水里鄉" },
+  { name:"明潭發電廠水里機組", lat:23.83556, lng:120.86889, type:"川流式", capacity:"12.75 MW", location:"南投縣水里鄉" },
+  { name:"明潭發電廠北山機組", lat:23.98556, lng:120.89306, type:"川流式", capacity:"4.32 MW", location:"南投縣國姓鄉" },
+  { name:"萬大發電廠松林分廠", lat:23.96500, lng:121.08750, type:"川流式", capacity:"20.9 MW", location:"南投縣仁愛鄉" },
+  { name:"萬大發電廠", lat:23.97611, lng:121.13444, type:"水庫式", capacity:"76.6 MW", location:"南投縣仁愛鄉" },
+  { name:"后里圳低落差示範電廠", lat:24.32444, lng:120.72167, type:"小水力", capacity:"0.11 MW", location:"台中市后里區" },
+  { name:"大甲溪發電廠后里機組", lat:24.32472, lng:120.72750, type:"川流式", capacity:"0.95 MW", location:"台中市后里區" },
+  { name:"大甲溪發電廠社寮機組", lat:24.27028, lng:120.79139, type:"川流式", capacity:"0.945 MW", location:"台中市石岡區" },
+  { name:"大甲溪發電廠馬鞍機組", lat:24.18250, lng:120.84000, type:"調整池式", capacity:"133.5 MW", location:"台中市和平區" },
+  { name:"大甲溪發電廠天輪分廠", lat:24.18500, lng:120.92194, type:"調整池式", capacity:"195 MW", location:"台中市和平區" },
+  { name:"大甲溪發電廠谷關分廠", lat:24.21333, lng:121.03361, type:"水庫式", capacity:"212.8 MW", location:"台中市和平區" },
+  { name:"大甲溪發電廠青山分廠", lat:24.24944, lng:121.10639, type:"調整池式", capacity:"368 MW", location:"台中市和平區" },
+  { name:"大甲溪發電廠德基分廠", lat:24.25417, lng:121.16528, type:"水庫式", capacity:"234 MW", location:"台中市和平區" },
+  { name:"卓蘭發電廠景山分廠", lat:24.33917, lng:120.77750, type:"水庫式", capacity:"4 MW", location:"苗栗縣三義鄉" },
+  { name:"卓蘭發電廠", lat:24.34972, lng:120.88139, type:"川流式", capacity:"80 MW", location:"苗栗縣卓蘭鎮" },
+  { name:"桂山發電廠軟橋機組", lat:24.69250, lng:121.10306, type:"川流式", capacity:"0.22 MW", location:"新竹縣竹東鎮" },
+  { name:"石門發電廠義興電廠", lat:24.77722, lng:121.36306, type:"調整池式", capacity:"40 MW", location:"桃園市復興區" },
+  { name:"桂山發電廠粗坑機組", lat:24.93778, lng:121.54250, type:"川流式", capacity:"5 MW", location:"新北市新店區" },
+  { name:"桂山發電廠桂山機組", lat:24.90333, lng:121.55778, type:"調整池式", capacity:"13 MW", location:"新北市新店區" },
+  { name:"桂山發電廠翡翠分廠", lat:24.90944, lng:121.57722, type:"水庫式", capacity:"70 MW", location:"新北市石碇區" },
+  { name:"桂山發電廠烏來機組", lat:24.85917, lng:121.55222, type:"調整池式", capacity:"22.5 MW", location:"新北市烏來區" },
+  { name:"明潭發電廠抽蓄機組", lat:23.83611, lng:120.86806, type:"抽蓄式", capacity:"1,602 MW", location:"南投縣水里鄉" },
+  { name:"大觀發電廠大觀二廠", lat:23.85417, lng:120.87083, type:"抽蓄式", capacity:"1,000 MW", location:"南投縣水里鄉" },
+  { name:"集集南岸三跌水小水力發電廠", lat:23.80, lng:120.90, type:"小水力", capacity:"1.7 MW", location:"南投縣集集鎮" }
+];
+// ====== 水力顏色對照 ======
+const hydroColors = {
+    "慣常式":  "#3399ff",
+    "抽蓄式":  "#9933ff",
+    "調整池式": "#00cccc",
+    "川流式":  "#66cc00",
+    "水庫式":  "#ff6600",
+    "小水力":  "#ffaaff"
+};
+
+
+// ====== 建立地圖 ======
+const map = L.map('map').setView([23.7,121],7);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+    attribution:'© OpenStreetMap'
+}).addTo(map);
+
+
+// ====== GeoJSON ======
+console.log("開始載入 GeoJSON");
+fetch("twgeojson-master/json/twTown1982.geo.json")
+.then(res=>res.json())
+.then(data=>{
+  console.log(data);
+    L.geoJSON(data,{
+
+        style:function(feature){
+            const county = feature.properties.COUNTYNAME;
+            const town = feature.properties.TOWNNAME;
+            const key = county + town;
+            const info = energyData[key];
+            let color = "#d3d3d3"; // 無資料
+            if(info){
+                if(info.type.includes("離岸風電")){
+                    color = "#0066ff";
+                }
+                else if(info.type.includes("風力發電")){
+                    color = "#00cc66";
+                }
+                else if(info.type.includes("地面型太陽能")){
+                    color = "#ffcc00";
+                }
+            }
+
+            return{
+                color:"#333",
+                weight:1,
+                fillColor:color,
+                fillOpacity:0.7
+            };
+        },
+
+        onEachFeature:function(feature,layer){
+            console.log(feature.properties);
+            const county =
+            feature.properties.COUNTYNAME;
+
+            const town =
+            feature.properties.TOWNNAME;
+
+            const key = county + town;
+
+            // Hover
+            layer.on('mouseover',function(){
+
+                layer.setStyle({
+                    fillColor:getColor(key),
+                    fillOpacity:0.7
+                });
+
+                const info =
+                energyData[key];
+
+                let html =
+                `<b>${key}</b><br>`;
+
+                if(info){
+
+                    html +=
+                    `能源：${info.type.join("、")}<br>
+                     容量：${info.power}`;
+
+                }else{
+
+                    html += "尚無資料";
+
+                }
+
+                layer.bindTooltip(
+                    html,
+                    {
+                        sticky:true
+                    }
+                ).openTooltip();
+
+            });
+
+            layer.on('mouseout',function(){
+
+                layer.setStyle({
+                    fillColor:getColor(key),
+                    fillOpacity:0.5
+                });
+
+            });
+
+            // Click
+            layer.on('click',function(){
+
+                const info =
+                energyData[key];
+
+                let html =
+                `<h3>${key}</h3>`;
+
+                if(info){
+
+                    html += `
+                    <b>能源種類</b><br>
+                    ${info.type.join("、")}
+                    <br><br>
+
+                    <b>發電容量</b><br>
+                    ${info.power}
+                    `;
+
+                }else{
+
+                    html += "目前尚未建立資料";
+                }
+
+                layer.bindPopup(html)
+                     .openPopup();
+
+            });
+
+        }
+
+    }).addTo(map);
+    // ====== 水力發電廠標記 ======
+hydroPlants.forEach(plant => {
+    L.circleMarker([plant.lat, plant.lng], {
+        radius: 6,
+        fillColor: hydroColors[plant.type] || "#999",
+        color: "#333",
+        weight: 1,
+        fillOpacity: 0.9
+    })
+    .bindTooltip(
+        `<b>${plant.name}</b><br>
+         類型：${plant.type}<br>
+         容量：${plant.capacity}<br>
+         位置：${plant.location}`,
+        { sticky: true }
+    )
+    .bindPopup(
+        `<h3>${plant.name}</h3>
+         <b>類型</b><br>${plant.type}<br><br>
+         <b>發電容量</b><br>${plant.capacity}<br><br>
+         <b>位置</b><br>${plant.location}`
+    )
+    .addTo(map);
+});
+});
+// ====== 圖例 ======
+const legend = L.control({
+    position: "bottomright"
+});
+
+legend.onAdd = function(){
+
+    const div = L.DomUtil.create(
+        "div",
+        "info legend"
+    );
+
+    div.innerHTML = `
+    <h4>能源圖例</h4>
+
+    <div style="margin-bottom:4px;font-weight:bold;border-bottom:1px solid #ccc;padding-bottom:4px;">■ 鄉鎮區域</div>
+    <div>
+        <span style="background:#0066ff;width:16px;height:16px;display:inline-block;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>離岸風電
+    </div>
+    <div>
+        <span style="background:#00cc66;width:16px;height:16px;display:inline-block;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>風力發電
+    </div>
+    <div>
+        <span style="background:#ffcc00;width:16px;height:16px;display:inline-block;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>地面型太陽能
+    </div>
+    <div>
+        <span style="background:#ff9900;width:16px;height:16px;display:inline-block;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>水上型太陽能
+    </div>
+    <div>
+        <span style="background:#d3d3d3;width:16px;height:16px;display:inline-block;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>尚無資料
+    </div>
+
+    <div style="margin:8px 0 4px;font-weight:bold;border-bottom:1px solid #ccc;padding-bottom:4px;">● 水力發電廠</div>
+    <div>
+        <span style="background:#3399ff;width:12px;height:12px;display:inline-block;border-radius:50%;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>慣常式
+    </div>
+    <div>
+        <span style="background:#9933ff;width:12px;height:12px;display:inline-block;border-radius:50%;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>抽蓄式
+    </div>
+    <div>
+        <span style="background:#00cccc;width:12px;height:12px;display:inline-block;border-radius:50%;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>調整池式
+    </div>
+    <div>
+        <span style="background:#66cc00;width:12px;height:12px;display:inline-block;border-radius:50%;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>川流式
+    </div>
+    <div>
+        <span style="background:#ff6600;width:12px;height:12px;display:inline-block;border-radius:50%;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>水庫式
+    </div>
+    <div>
+        <span style="background:#ffaaff;width:12px;height:12px;display:inline-block;border-radius:50%;border:1px solid #333;margin-right:6px;vertical-align:middle;"></span>小水力
+    </div>
+`;
+
+    return div;
+};
+
+legend.addTo(map);
+</script>
+
+</body>
+</html>
