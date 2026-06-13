@@ -49,14 +49,6 @@ async function renderComments() {
         const text = document.createElement("p");
         text.textContent = comment.message;
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.className = "delete-comment";
-        deleteBtn.textContent = "收回";
-        deleteBtn.addEventListener("click", async () => {
-            await fetch(`${API}/${comment.id}`, { method: "DELETE" });
-            renderComments();
-        });
-
         const now = Date.now() / 1000;
         const sevenDays = 7 * 24 * 60 * 60;
         const remaining = sevenDays - (now - comment.timestamp);
@@ -77,7 +69,6 @@ async function renderComments() {
         item.appendChild(top);
         item.appendChild(text);
         item.appendChild(expire);
-        item.appendChild(deleteBtn);
         commentList.appendChild(item);
     });
 
