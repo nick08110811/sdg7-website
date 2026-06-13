@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8" />
+<title>台灣太陽光電場分布地圖</title>
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+
+  .legend {
+    background: white;
+    padding: 8px 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    border-radius: 6px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.25);
+  }
+
+  /* tooltip 樣式 */
+  .leaflet-tooltip {
+    font-size: 14px;
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+/* ===============================
+   自訂 SVG 圖釘 icon
+================================ */
+function makeIcon(color) {
+  return L.divIcon({
+    className: "",
+    html: `
+      <svg width="22" height="32" viewBox="0 0 24 36">
+        <path d="M12 0C5.4 0 0 5.4 0 12
+                 c0 9 12 24 12 24s12-15 12-24
+                 C24 5.4 18.6 0 12 0z"
+              fill="${color}" stroke="#000" stroke-width="1"/>
+        <circle cx="12" cy="12" r="4" fill="#fff"/>
+      </svg>
+    `,
+    iconSize: [22, 32],
+    iconAnchor: [11, 32]
+  });
+}
+
+const groundIcon = makeIcon('#2ecc71');
+const waterIcon  = makeIcon('#3498db');
+
+/* ===============================
+   建立地圖
+================================ */
+const map = L.map('map').setView([23.7, 121], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+/* ===============================
+   資料
+================================ */
+const groundPlants = [
+  [24.2167, 120.5167, '台中龍井太陽光電場', '6.486 kW', '臺中市龍井區'],
+  [23.7989, 120.8553, '南投大彎太陽光電場', '1 MW', '南投縣水里鄉'],
+  [24.07745, 120.414801, '彰化彰濱太陽光電場', '100 MW', '彰化縣鹿港鎮'],
+  [23.3311, 120.1853, '韋能能源嘉義義竹電廠', '70.2 MW', '嘉義縣義竹鄉'],
+  [23.1197, 120.1033, '台南七股太陽光電場', '1.8 MW', '臺南市七股區'],
+  [23.2167, 120.1333, '台南鹽田太陽光電場', '150 MW', '七股區 / 將軍區'],
+  [23.7000, 120.2000, '雲林新興發電廠', '272 MW', '雲林縣臺西鄉'],
+  [22.8383, 120.2069, '高雄永安太陽光電場', '4,636.8 kW', '高雄市永安區']
+];
+
+const waterPlants = [
+  [24.2586, 120.8281, '馬鞍後池太陽光電場', '0.3 MW', '臺中市東勢區'],
+  [22.8072, 120.3519, '阿公店水庫太陽光電場', '10 MW', '高雄市燕巢區'],
+  [23.5300, 120.4931, '內埔子水庫太陽光電場', '1.972 MW', '嘉義縣民雄鄉'],
+  [23.2057, 120.3902, '烏山頭水庫太陽光電場', '13.7 MW', '臺南市官田區'],
+  [22.5336, 120.3900, '鳳山水庫太陽光電場', '2 MW', '高雄市小港區'],
+  [24.4378, 118.4281, '金湖水庫太陽光電場', '2.142 MW', '金門縣金湖鎮']
+];
+
+/* ===============================
+   地面式（hover 顯示）
+================================ */
+groundPlants.forEach(p => {
+  L.marker([p[0], p[1]], { icon: groundIcon })
+    .bindTooltip(`
+      <b>${p[2]}</b><br>
+      類型：地面式<br>
+      裝置容量：${p[3]}<br>
+      地點：${p[4]}
+    `, {
+      direction: 'top',
+      offset: [0, -10],
+      opacity: 0.95,
+      sticky: true
+    })
+    .addTo(map);
+});
+
+/* ===============================
+   水面式（hover 顯示）
+================================ */
+waterPlants.forEach(p => {
+  L.marker([p[0], p[1]], { icon: waterIcon })
+    .bindTooltip(`
+      <b>${p[2]}</b><br>
+      類型：水面式<br>
+      裝置容量：${p[3]}<br>
+      地點：${p[4]}
+    `, {
+      direction: 'top',
+      offset: [0, -10],
+      opacity: 0.95,
+      sticky: true
+    })
+    .addTo(map);
+});
+
+/* ===============================
+   圖例
+================================ */
+const legend = L.control({ position: 'bottomright' });
+legend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `
+    <b>圖例</b><br>
+    <span style="color:#2ecc71">●</span> 地面式<br>
+    <span style="color:#3498db">●</span> 水面式
+  `;
+  return div;
+};
+legend.addTo(map);
+</script>
+
+</body>
+</html>
