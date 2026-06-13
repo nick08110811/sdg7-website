@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>SDG 7 可負擔與潔淨能源</title>
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+<!-- 漢堡選單按鈕 -->
+<div id="menu-btn">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<!-- 側邊目錄 -->
+<nav id="side-menu">
+  <h4>能源目錄</h4>
+  <ul>
+    <li><a href="sdg7.html">首頁</a></li>
+    <li><a href="https://flyyu-hub.github.io/energy-Game./">全源配服</a></li>
+    <li><a href="水力發電.html" class="active">水力發電</a></li>
+    <li><a href="地熱發電.html">地熱發電</a></li>
+    <li><a href="太陽能發電.html">太陽能發電</a></li>
+    <li><a href="風力發電.html">風力發電</a></li>
+    <li><a href="生質能發電.html">生質能發電</a></li>
+    <li><a href="廢棄物發電.html">廢棄物發電</a></li>
+  </ul>
+</nav>
+
+<!-- 背景遮罩 -->
+<div id="overlay"></div>
+<script>
+  const menuBtn = document.getElementById('menu-btn');
+  const sideMenu = document.getElementById('side-menu');
+  const overlay = document.getElementById('overlay');
+
+  menuBtn.addEventListener('click', () => {
+    sideMenu.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+
+  overlay.addEventListener('click', () => {
+    sideMenu.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+</script>
+
+<header>
+    <h1>SDG 7：可負擔與潔淨能源</h1>
+    <p class="subtitle">
+        確保所有人都能取得可負擔、可靠、永續且現代化的能源
+    </p>
+</header>
+
+<section class="energy">
+    <h2>水力發電</h2>
+
+    <h3>水力發電原理介紹</h3>
+    <p>
+        水力發電的原理是利用水的位能轉換為動能，再推動水輪機旋轉，帶動發電機將機械能轉換成電能，其發電核心是能量轉換。
+    </p>  
+    <p>
+        主要包括水庫攔水、水流衝擊水輪機、發電與輸電等步驟，可分為水庫式、川流式、調整池式及抽蓄式等類型。
+    </p>
+
+    <div class="hydro-type">
+        <h4>水庫式水力發電</h4>
+        <p>
+            利用水庫蓄水形成的高低落差，讓水流經水輪機帶動發電機產生電力。
+            此方式發電穩定，並可兼具防洪、供水與調節用電等需求。
+        </p>
+    </div>
+
+    <div class="hydro-type">
+        <h4>川流式水力發電</h4>
+        <p>
+            利用河川自然流動的水流推動水輪機發電，不需大型水庫蓄水，
+            對環境影響較小，但發電量會隨季節與水量變化。
+        </p>
+    </div>
+
+    <div class="hydro-type">
+        <h4>調整池式水力發電</h4>
+        <p>
+            在水力發電系統中設置調整池，用來暫時儲存上游發電後的水量，
+            以調節出水流量，使下游發電更穩定，常與水庫式或川流式搭配使用。
+        </p>
+    </div>
+
+    <div class="hydro-type">
+        <h4>抽蓄式水力發電</h4>
+        <p>
+            在用電離峰時將水抽送至上水庫儲存，
+            用電高峰時再放水發電，具備儲能與穩定電網的功能。
+        </p>
+    </div>
+    <h3>台灣水庫分布概況</h3>
+
+    <div class="map-box">
+        <img src="images/水庫分布.png" alt="台灣水庫分布圖">
+        <p class="img-note">圖：台灣水庫分布示意圖</p>
+    </div>
+
+    
+
+</section>
+<section class="map-section">
+    <h2>台灣水力發電廠分布地圖</h2>
+
+    <div class="map-wrapper">
+        <iframe 
+            src="水力.html"
+            class="hydro-map"
+            loading="lazy">
+        </iframe>
+    </div>
+    <div class="back-home">
+    <a href="file:///C:/Users/User/Desktop/sdg7/sdg7.html">← 回首頁</a>
+    </div>
+</section>
+<footer>
+    <div class="footer-left">
+        <span id="clock"></span>
+    </div>
+    <div class="footer-center">
+        © 2026 SDG 7 專題網頁
+    </div>
+    <div class="footer-right">
+        👥 累積造訪次數：
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=nick08110811.水力">
+    </div>
+</footer>
+<script>
+    function updateClock() {
+        let now = new Date();
+        document.getElementById("clock").innerHTML =
+            now.toLocaleString("zh-TW");
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+</body>
+</html>

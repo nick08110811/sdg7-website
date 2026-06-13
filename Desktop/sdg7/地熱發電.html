@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>SDG 7 可負擔與潔淨能源</title>
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+<!-- 漢堡選單按鈕 -->
+<div id="menu-btn">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<!-- 側邊目錄 -->
+<nav id="side-menu">
+  <h4>能源目錄</h4>
+  <ul>
+    <li><a href="sdg7.html">首頁</a></li>
+    <li><a href="水力發電.html" class="active">水力發電</a></li>
+    <li><a href="地熱發電.html" class="active">地熱發電</a></li>
+    <li><a href="太陽能發電.html">太陽能發電</a></li>
+    <li><a href="風力發電.html">風力發電</a></li>
+    <li><a href="生質能發電.html">生質能發電</a></li>
+    <li><a href="廢棄物發電.html">廢棄物發電</a></li>
+  </ul>
+</nav>
+
+<!-- 背景遮罩 -->
+<div id="overlay"></div>
+<script>
+  const menuBtn = document.getElementById('menu-btn');
+  const sideMenu = document.getElementById('side-menu');
+  const overlay = document.getElementById('overlay');
+
+  menuBtn.addEventListener('click', () => {
+    sideMenu.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+
+  overlay.addEventListener('click', () => {
+    sideMenu.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+</script>
+<header>
+    <h1>SDG 7：可負擔與潔淨能源</h1>
+    <p class="subtitle">
+        確保所有人都能取得可負擔、可靠、永續且現代化的能源
+    </p>
+</header>
+
+<section class="energy">
+    <h2>地熱發電</h2>
+
+    <h3>地熱能介紹</h3>
+    <p>
+        「地熱能」，簡稱「地熱」。地熱來自於地球內部，地核散發的熱量透過地函的高溫岩漿傳達至地殼。
+        可供開發利用之地熱一般發生在地殼破裂處，亦即板塊構造邊緣；台灣便是位於環太平洋地震帶上，因此具有發展地熱的良好先天條件。
+        由於地殼板塊推擠或擴張，造成火山活動，以致區域性地溫升高，目前的技術只能在部份地質適宜的區域，針對集中在地殼淺部的熱能予以開發利用，
+        將來若能更進一步開發較深層的地熱時，則熱能源源不絕，地熱常被稱為永不枯竭的資源。
+    </p>
+    <P>
+        常見的地熱依其儲存方式，可分為兩種類型，水熱型和乾熱岩型。
+    </P>
+
+    <div class="hydro-type">
+        <h4>水熱型</h4>
+        <p>
+            指地下水在多孔性或裂隙較多的岩層中吸收地熱，其所儲集的熱水及蒸汽，經適當提引後可為經濟型替代能源，即現今最常見之開發方式。
+        </p>
+    </div>
+
+    <div class="hydro-type">
+        <h4>乾熱岩型</h4>
+        <p>
+            指淺藏在地殼表層的熔岩或尚未冷卻的岩體，可以人工方法造成裂隙破碎帶，再鑽孔注入冷水使其加熱成蒸汽和熱水後將熱量引出。
+        </p>
+    </div>
+
+    <h3>地熱發電原理介紹</h3>
+    <p>
+        地熱發電的基本原理乃利用源源不絕的地熱來加熱地下水，使其成為過熱蒸汽後，當作工作流體以推動渦輪機旋轉發電。
+        也就是將地熱轉換為機械能，再將機械能轉換為電能；這種以蒸汽來旋轉渦輪的方式，和火力發電的原理是相同的。
+    
+    </p>
+    
+    <h3>台灣地熱發電站分布概況</h3>
+
+    <div class="map-box">
+        <img src="images/地熱發電廠分布.png" alt="台灣地熱發電廠分布圖">
+        <p class="img-note">圖：台灣地熱發電站分布示意圖</p>
+    </div>
+    </div>
+    <div class="back-home">
+    <a href="file:///C:/Users/User/Desktop/sdg7/sdg7.html">← 回首頁</a>
+    </div>
+</section>
+<footer>
+    <div class="footer-left">
+        <span id="clock"></span>
+    </div>
+    <div class="footer-center">
+        © 2026 SDG 7 專題網頁
+    </div>
+    <div class="footer-right">
+        👥 累積造訪次數：
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=nick08110811.地熱">
+    </div>
+</footer>
+<script>
+    function updateClock() {
+        let now = new Date();
+        document.getElementById("clock").innerHTML =
+            now.toLocaleString("zh-TW");
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+</body>
+</html>
